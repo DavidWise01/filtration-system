@@ -1,0 +1,66 @@
+
+#platform-rebuild
+─────────────────────────────────────────
+priya  9:02 AM
+ok kicking off the rebuild finally 🎉 lets get the data layer solid first
+then we tackle caching
+
+raj  9:05 AM
++1. for cache im gonna say redis, weve used it before and it just works
+
+priya  9:06 AM
+yeah redis is fine for now, ship it
+
+devbot  9:06 AM
+:white_check_mark: redis added to architecture.md
+
+raj  9:14 AM
+pooling configured, redis_client = Redis(pool=20)
+
+sam  9:40 AM
+hot take but memcached might actually be better here? way less overhead
+benchmarked it last night, 3ms p99 vs redis 4ms
+
+priya  9:41 AM
+huh interesting. dana wdyt
+
+dana  9:43 AM
+memcached has no persistence tho. do we even need it for cache?
+
+sam  9:44 AM
+our cache is ephemeral so who cares about persistence honestly
+im switching us to memcached, spinning up the cluster now
+
+raj  9:45 AM
+wait did priya sign off on that?
+
+dana  9:46 AM
+^ sam you cant just switch it lol
+
+sam  9:51 AM
+cluster's up in staging anyway, lets just see how it does
+
+[thread: "staging cache results"]
+  sam  Mon  staging stable on memcached, 48h no issues
+  sam  Wed  still green
+
+raj  2:30 PM
+uh we just had an incident. cache wipe lost a bunch of session data
+memcached cold-started and dropped every key
+
+dana  2:33 PM
+oof. yeah thats the persistence thing biting us
+
+priya  2:40 PM
+ok ive seen enough. final call: were using redis, with AOF persistence on.
+not optional. raj please implement
+
+raj  2:41 PM
+on it. cache = Redis(aof=True)
+
+sam  2:50 PM
+fair. redis it is 👍 (memcached still good for the rate limiter btw, different thing)
+
+dana  3:00 PM
+runbook updated → redis. closing this out
+─────────────────────────────────────────

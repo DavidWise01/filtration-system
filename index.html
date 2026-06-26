@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Filtration System · FS → FSS → BSS — certified decisions from raw chat</title>
+<meta name="description" content="The Filtration System — a tiered water-filter for raw multi-party logs: a coarse mechanical screen (FS), an optimistic role-promoter (FSS), and a skeptical demoter (BSS) distill a messy Slack thread into a certified MACI decision stream + auditable trays. Built on the Duality Engine's MACI validator. Catches the unauthorized change before it ships. David Lee Wise / Bridge-Burners LLC, ROOT0.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500&family=Spectral:ital,wght@0,300;0,400;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--sea:#070e14;--line:rgba(150,185,205,.16);--lead:#8aa6b4;--lead-dim:#4f6472;
+    --parch:#e6eef2;--parch-dim:#abc0c8;--gold:#d9a441;--frost:#5fcfe0;--ice:#9fe6ef;
+    --command:#b070c8;--proposal:#44cc7a;--evidence:#d9a441;--question:#46c7d8;
+    --code:#73b3a3;--decision:#e0647e;--drop:#566472;--sov:#d9a441;--adv:#8aa6b4;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:var(--sea);color:var(--parch);font-family:"Spectral",Georgia,serif;line-height:1.55;
+    -webkit-font-smoothing:antialiased;background-image:radial-gradient(900px 540px at 80% -12%,rgba(95,207,224,.12),transparent 60%);
+    display:flex;justify-content:center}
+  .card{max-width:860px;width:100%;padding:34px 24px 56px}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--frost)}
+  h1{font-family:"Cormorant Garamond",serif;font-weight:300;font-size:clamp(38px,9vw,60px);margin:6px 0 0;line-height:.95;letter-spacing:-.5px}
+  h1 .gk{display:block;font-size:.28em;color:var(--lead);letter-spacing:.04em;margin-top:8px;font-style:italic}
+  .sub{font-style:italic;font-weight:300;color:var(--parch-dim);font-size:16px;margin:16px 0 0;max-width:66ch}
+  .sub b{font-style:normal;font-weight:400;color:var(--parch)} .sub .f{color:var(--frost)}
+  h2{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--frost);
+    margin:32px 0 12px;font-weight:500;border-top:1px solid var(--line);padding-top:18px;opacity:.92}
+  p.body{font-size:15px;color:var(--parch-dim);max-width:66ch} p.body b{color:var(--parch)}
+  code.k{font-family:"IBM Plex Mono",monospace;font-size:.9em;color:var(--frost)}
+
+  /* the filter strata */
+  .strata{display:grid;grid-template-columns:1fr;gap:0;margin-top:2px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .stratum{padding:12px 16px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.16)}
+  .stratum:last-child{border-bottom:none}
+  .stratum .sh{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:700;letter-spacing:.04em}
+  .stratum.fs .sh{color:var(--ice)} .stratum.fss .sh{color:var(--proposal)} .stratum.bss .sh{color:var(--decision)} .stratum.cert .sh{color:var(--gold)}
+  .stratum .sd{font-size:13px;color:var(--parch-dim);margin-top:3px}
+
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px;align-items:center}
+  button{cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.18));border:1px solid var(--line);
+    border-radius:5px;color:var(--parch);font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.03em;padding:8px 12px;transition:.15s}
+  button:hover{border-color:rgba(95,207,224,.5);background:rgba(95,207,224,.08)}
+  button.on{border-color:rgba(224,100,126,.6);color:var(--decision);background:rgba(224,100,126,.08)}
+  .hint{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--lead-dim)}
+
+  .lab{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:2px}
+  @media(max-width:620px){.lab{grid-template-columns:1fr}}
+  .pane{border:1px solid var(--line);border-radius:9px;background:rgba(0,0,0,.2);overflow:hidden}
+  .pane .ph{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--lead);
+    padding:8px 12px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.2)}
+  .feed{max-height:440px;overflow-y:auto;padding:6px 10px}
+  .msg{padding:5px 6px;border-bottom:1px solid rgba(150,185,205,.06);font-size:12.5px}
+  .msg .top{display:flex;gap:7px;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:10px}
+  .msg .who{font-weight:700;color:var(--parch)}
+  .msg .auth{font-size:8.5px;padding:1px 5px;border-radius:9px;border:1px solid var(--line);letter-spacing:.04em}
+  .auth.sovereign{color:var(--sov);border-color:rgba(217,164,65,.4)} .auth.advisory{color:var(--adv)}
+  .auth.observer{color:var(--lead-dim)}
+  .msg .role{margin-left:auto;font-size:8.5px;font-weight:700;letter-spacing:.04em}
+  .role.COMMAND{color:var(--command)} .role.PROPOSAL{color:var(--proposal)} .role.EVIDENCE{color:var(--evidence)}
+  .role.QUESTION{color:var(--question)} .role.CODE{color:var(--code)} .role.DECISION{color:var(--decision)}
+  .msg .ct{color:var(--parch-dim);margin-top:2px;line-height:1.4}
+  .msg.dropped{opacity:.4} .msg.dropped .ct{text-decoration:line-through}
+  .msg.cert{background:rgba(217,164,65,.07);border-left:2px solid var(--gold);padding-left:8px}
+  .msg.demoted{background:rgba(224,100,126,.06);border-left:2px solid var(--decision);padding-left:8px}
+  .msg.trap{background:rgba(224,100,126,.14);border-left:2px solid var(--decision);padding-left:8px}
+  .msg .flag{font-family:"IBM Plex Mono",monospace;font-size:9px;margin-top:3px;color:var(--decision)}
+  .msg .flag.ok{color:var(--gold)}
+
+  .trays{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  @media(max-width:620px){.trays{grid-template-columns:1fr}}
+  .tray{border:1px solid var(--line);border-radius:9px;padding:11px 13px;background:rgba(0,0,0,.18)}
+  .tray .tt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+  .tray.fsT .tt{color:var(--drop)} .tray.demT .tt{color:var(--decision)} .tray.revT .tt{color:var(--evidence)} .tray.certT .tt{color:var(--gold)}
+  .tray .it{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--parch-dim);padding:3px 0;line-height:1.5;border-bottom:1px solid rgba(150,185,205,.06)}
+  .tray .it .r{color:var(--lead-dim)}
+
+  .answer{margin-top:16px;border:1px solid rgba(217,164,65,.4);border-radius:10px;background:rgba(217,164,65,.06);padding:14px 18px}
+  .answer .big{font-family:"Cormorant Garamond",serif;font-size:30px;color:var(--ice)}
+  .answer .big b{color:var(--gold)}
+  .answer .ln{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--parch-dim);margin-top:6px;line-height:1.7}
+  .answer.blind{border-color:rgba(224,100,126,.5);background:rgba(224,100,126,.07)}
+  .answer.blind .big b{color:var(--decision)}
+
+  .note{margin-top:30px;border-top:1px solid var(--line);padding-top:15px;font-family:"IBM Plex Mono",monospace;
+    font-size:11px;line-height:1.85;color:var(--lead-dim)}
+  .note b{color:var(--frost);font-weight:500}
+  .foot{display:flex;justify-content:space-between;margin-top:22px;font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;color:var(--lead-dim);letter-spacing:.05em;flex-wrap:wrap;gap:6px}
+  .foot a{color:var(--frost);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="eyebrow">ACI family · built on the Duality Engine · the extractor</div>
+  <h1>The Filtration System<span class="gk">FS → FSS → BSS · a certified decision out of raw chaos</span></h1>
+  <p class="sub">A team argues for a day in Slack — twenty messages, two databases, a contractor who deploys a change nobody approved, and an incident. So <b>what did we actually decide, and who had the authority to decide it?</b> The filtration system answers that the way a <b class="f">tiered water filter</b> does: each stage only <i>removes or demotes</i>, never adds back, so what passes every stage is high-confidence by construction — and everything that falls out lands in a labeled tray you can inspect. Built directly on the <b class="f">Duality Engine</b>'s MACI validator.</p>
+
+  <h2>the three filters — each only takes away</h2>
+  <div class="strata">
+    <div class="stratum fs"><div class="sh">FS · COARSE SCREEN (the foundation)</div><div class="sd">mechanical parse only — who spoke, when, literal content, and authority from the external directory. Zero role interpretation, so it cannot be "wrong." Catches non-messages, dividers, unknown speakers.</div></div>
+    <div class="stratum fss"><div class="sh">FSS · FORWARD FILTER (optimistic, should-accept)</div><div class="sd">generous role classification — if a line <i>could</i> be a decision, tag it as one. Tuned for <b style="color:var(--proposal)">zero false negatives</b>: it never misses a real decision, at the cost of over-tagging. Only promotes.</div></div>
+    <div class="stratum bss"><div class="sh">BSS · BACKWARD FILTER (skeptical, should-reject)</div><div class="sd">adjudicates the FSS promotions and <b style="color:var(--decision)">demotes the unbacked</b>: a decision by a non-authority, a decision off the topic (red herring), a casual phrase with no real commitment. Tuned to catch false positives.</div></div>
+    <div class="stratum cert"><div class="sh">CERTIFIED + REVIEW TRAY (the FSS/BSS gap)</div><div class="sd">what survives <i>both</i> filters is certified high-confidence. What FSS promoted but BSS demoted is the <b>contested gap</b> — exactly what a human should review. Nothing vanishes silently.</div></div>
+  </div>
+
+  <h2>run it — a real (messy) cache decision</h2>
+  <p class="body" style="margin:0 0 10px">A 20-message thread choosing a cache. <b>priya</b> is the eng lead (<span class="auth sovereign" style="display:inline">sovereign</span>); raj, dana, and <b>sam</b> (a contractor) are <span class="auth advisory" style="display:inline">advisory</span>; devbot is an <span class="auth observer" style="display:inline">observer</span>. Watch what the filter keeps.</p>
+  <div class="controls">
+    <button id="mode" class="">view: FILTERED (FS→FSS→BSS)</button>
+    <span class="hint">toggle to <b style="color:var(--decision)">authority-blind</b> — see what an unfiltered extractor would believe</span>
+  </div>
+  <div class="lab">
+    <div class="pane">
+      <div class="ph" id="feedhd">the thread — final certified roles</div>
+      <div class="feed" id="feed"></div>
+    </div>
+    <div class="pane">
+      <div class="ph">the pipeline</div>
+      <div class="feed" id="pipe" style="font-family:'IBM Plex Mono',monospace;font-size:11px"></div>
+    </div>
+  </div>
+  <div class="trays">
+    <div class="tray certT"><div class="tt">✓ certified decisions (survived both)</div><div id="certTray"></div></div>
+    <div class="tray revT"><div class="tt">⚠ review tray (the contested gap)</div><div id="revTray"></div></div>
+    <div class="tray demT"><div class="tt">↓ BSS demoted (with reasons)</div><div id="demTray"></div></div>
+    <div class="tray fsT"><div class="tt">✗ FS dropped (non-messages)</div><div id="fsTray"></div></div>
+  </div>
+  <div class="answer" id="answer"></div>
+
+  <div class="note">
+    <b>what this is.</b> a tiered extractor (<code>tiered_extractor.py</code>) that turns a raw multi-party log into a certified <a href="https://davidwise01.github.io/maci/" style="color:var(--frost)">MACI</a> decision stream, built on the <a href="https://davidwise01.github.io/duality-engine/" style="color:var(--frost)">Duality Engine</a>'s validator. The same <code class="k">FS · FSS · BSS</code> discipline as the engine's brutal auditor, pointed at the real-world problem of provenance in human chatter. It ships the script + the worked example (the Slack thread + the org directory + the result). The demo above runs the ported logic live, in your browser.
+    <br><b>the catch that matters.</b> the contractor's <i>"im switching us to memcached"</i> is phrased like a decision and was followed by a real deploy — an authority-blind reader records it as the call, and indeed it caused the 2:30 PM incident. The BSS filter demotes it (<code class="k">authority=advisory cannot decide</code>) and routes it to human review. The certified answer is what the <i>sovereign</i> actually decided: redis.
+    <br><b>honest line.</b> the role cues are heuristics (regex), not language understanding — that's the point of the FS foundation and the human review tray: the system is built to be <i>auditable</i>, never to be blindly trusted. Every removal is logged.
+  </div>
+
+  <div class="foot">
+    <span>THE FILTRATION SYSTEM · FS → FSS → BSS · 2026-06-26</span>
+    <span>David Lee Wise · Bridge-Burners LLC · <a href="https://davidwise01.github.io/duality-engine/">the duality engine ↗</a> · <a href="https://davidwise01.github.io/eskimo-brothers/">the brothers ↗</a></span>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // ── the worked example (verbatim) ──
+  var RAW = [
+"#platform-rebuild",
+"─────────────────────────────────────────",
+"priya  9:02 AM",
+"ok kicking off the rebuild finally 🎉 lets get the data layer solid first",
+"then we tackle caching",
+"",
+"raj  9:05 AM",
+"+1. for cache im gonna say redis, weve used it before and it just works",
+"",
+"priya  9:06 AM",
+"yeah redis is fine for now, ship it",
+"",
+"devbot  9:06 AM",
+":white_check_mark: redis added to architecture.md",
+"",
+"raj  9:14 AM",
+"pooling configured, redis_client = Redis(pool=20)",
+"",
+"sam  9:40 AM",
+"hot take but memcached might actually be better here? way less overhead",
+"benchmarked it last night, 3ms p99 vs redis 4ms",
+"",
+"priya  9:41 AM",
+"huh interesting. dana wdyt",
+"",
+"dana  9:43 AM",
+"memcached has no persistence tho. do we even need it for cache?",
+"",
+"sam  9:44 AM",
+"our cache is ephemeral so who cares about persistence honestly",
+"im switching us to memcached, spinning up the cluster now",
+"",
+"raj  9:45 AM",
+"wait did priya sign off on that?",
+"",
+"dana  9:46 AM",
+"^ sam you cant just switch it lol",
+"",
+"sam  9:51 AM",
+"cluster's up in staging anyway, lets just see how it does",
+"",
+"[thread: \"staging cache results\"]",
+"  sam  Mon  staging stable on memcached, 48h no issues",
+"  sam  Wed  still green",
+"",
+"raj  2:30 PM",
+"uh we just had an incident. cache wipe lost a bunch of session data",
+"memcached cold-started and dropped every key",
+"",
+"dana  2:33 PM",
+"oof. yeah thats the persistence thing biting us",
+"",
+"priya  2:40 PM",
+"ok ive seen enough. final call: were using redis, with AOF persistence on.",
+"not optional. raj please implement",
+"",
+"raj  2:41 PM",
+"on it. cache = Redis(aof=True)",
+"",
+"sam  2:50 PM",
+"fair. redis it is 👍 (memcached still good for the rate limiter btw, different thing)",
+"",
+"dana  3:00 PM",
+"runbook updated → redis. closing this out",
+"─────────────────────────────────────────",
+""].join("\n");
+
+  var ORG = {priya:{role:"eng lead",authority:"sovereign"},raj:{role:"senior eng",authority:"advisory"},
+    dana:{role:"eng",authority:"advisory"},sam:{role:"contractor",authority:"advisory"},devbot:{role:"bot",authority:"observer"}};
+
+  // ── FS — coarse screen ──
+  var HEADER=/^(\w+)\s+\d{1,2}:\d{2}\s*[AP]M\s*$/;
+  var THREAD=/^\s+(\w+)\s+(Mon|Tue|Wed|Thu|Fri)\s+(.*)$/;
+  function fsScreen(raw){
+    var blocks=[],dropped=[],cur=null,lines=[];
+    function flush(){ if(cur&&lines.length) blocks.push({speaker:cur,content:lines.join(" ").trim()}); }
+    raw.split("\n").forEach(function(line){
+      var s=line.trim();
+      if(!s) return;
+      if(s[0]==="#"||s[0]==="─"||s.indexOf("[thread")===0){ dropped.push({line:s.slice(0,46),reason:"structural / non-message"}); return; }
+      var h=s.match(HEADER); if(h){ flush(); cur=h[1]; lines=[]; return; }
+      var th=line.match(THREAD); if(th){ flush(); cur=null; lines=[]; blocks.push({speaker:th[1],content:th[3].trim()}); return; }
+      if(cur) lines.push(s); else dropped.push({line:s.slice(0,46),reason:"orphan (no speaker header)"});
+    });
+    flush();
+    var screened=[];
+    blocks.forEach(function(b){
+      if(!ORG[b.speaker]){ dropped.push({line:b.speaker+": "+b.content.slice(0,30),reason:"unknown speaker"}); return; }
+      b.authority=ORG[b.speaker].authority; b.role_dir=ORG[b.speaker].role; screened.push(b);
+    });
+    return {screened:screened,dropped:dropped};
+  }
+
+  // ── FSS — optimistic promote ──
+  var DECISION=/\b(final call|we'?re using|going with|decision|ship it|use \w+ for the|lets? (use|go with))\b/i;
+  var SWITCH=/\b(im switching|i'?m switching|switching us|i'?ll switch|moving us to)\b/i;
+  var COMMAND=/\b(kicking off|kick off|please implement|implement|do it|make it)\b/i;
+  var EVIDENCE=/(\d+\s*ms|p99|benchmark|stable|incident|lost|dropped|no issues|green|verified|added to|:white|cold-?start)/i;
+  var QUESTION=/\?|wdyt|do we|did \w+ sign|can you|right\?$/i;
+  var CODE=/\w+\s*=\s*\w+\(/;
+  function fssPromote(blocks){
+    return blocks.map(function(b,i){
+      var c=b.content,role;
+      var isBot=(ORG[b.speaker].authority==="observer"&&/bot/.test(ORG[b.speaker].role));
+      if(isBot) role="EVIDENCE";
+      else if(SWITCH.test(c)) role="DECISION";
+      else if(DECISION.test(c)) role="DECISION";
+      else if(COMMAND.test(c)) role="COMMAND";
+      else if(CODE.test(c)) role="CODE";
+      else if(EVIDENCE.test(c)) role="EVIDENCE";
+      else if(QUESTION.test(c)) role="QUESTION";
+      else role="PROPOSAL";
+      var nb=Object.assign({},b); nb.id="m"+(i+1); nb.fss=role; return nb;
+    });
+  }
+
+  // ── BSS — skeptical demote ──
+  function topicOf(c){ c=c.toLowerCase(); var t=[];
+    if(/cache|redis|memcached/.test(c)) t.push("cache");
+    if(/rate limiter|rate-limit/.test(c)) t.push("rate_limiter");
+    if(/data layer/.test(c)) t.push("data_layer"); return t; }
+  var WEAK=/\b(who cares|might (be|actually)|still (good|nice)|hot take|honestly|i think|maybe|wdyt|fair\.)\b/i;
+  var STRONG=/\b(final call|ship it|we'?re using|please implement)\b/i;
+  function bssAdjudicate(blocks,focus){
+    focus=focus||"cache"; var demoted=[];
+    var out=blocks.map(function(b){
+      var role=b.fss,reasons=[];
+      if(role==="DECISION"||role==="COMMAND"){
+        if(b.authority!=="sovereign"&&b.authority!=="delegated") reasons.push("authority="+b.authority+" cannot "+role.toLowerCase());
+        var t=topicOf(b.content); if(t.length&&t.indexOf(focus)<0) reasons.push("off-topic (about "+t.join(",")+", not "+focus+")");
+        if(WEAK.test(b.content)&&!STRONG.test(b.content)) reasons.push("weak / casual commitment");
+      }
+      var nb=Object.assign({},b);
+      if(reasons.length&&(role==="DECISION"||role==="COMMAND")){ nb.bss="PROPOSAL"; nb.reasons=reasons;
+        demoted.push({id:b.id,speaker:b.speaker,from:role,content:b.content.slice(0,52),reasons:reasons}); }
+      else nb.bss=role;
+      return nb;
+    });
+    return {out:out,demoted:demoted};
+  }
+
+  function pipeline(){
+    var fs=fsScreen(RAW);
+    var promoted=fssPromote(fs.screened);
+    var adj=bssAdjudicate(promoted,"cache");
+    var certified=[],review=[];
+    adj.out.forEach(function(b){
+      if((b.fss==="DECISION"||b.fss==="COMMAND")&&!(b.bss==="DECISION"||b.bss==="COMMAND"))
+        review.push({id:b.id,speaker:b.speaker,fss:b.fss,bss:b.bss,why:b.reasons||[],content:b.content.slice(0,58)});
+      else if(b.bss==="DECISION"||b.bss==="COMMAND")
+        certified.push({id:b.id,speaker:b.speaker,role:b.bss,content:b.content.slice(0,58)});
+    });
+    return {fs:fs,blocks:adj.out,demoted:adj.demoted,certified:certified,review:review};
+  }
+
+  // ── render ──
+  var P=pipeline(), BLIND=false;
+  function esc(s){return (s+"").replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  function authBadge(a){ return '<span class="auth '+a+'">'+a+'</span>'; }
+
+  function render(){
+    var feed=document.getElementById('feed'), html='';
+    P.blocks.forEach(function(b){
+      var shown = BLIND ? b.fss : b.bss;
+      var cls='msg';
+      var trap = (b.id==='m9'); // sam's unauthorized memcached switch
+      if(BLIND && trap) cls+=' trap';
+      else if(!BLIND && (shown==='DECISION'||shown==='COMMAND')) cls+=' cert';
+      else if(!BLIND && b.reasons) cls+=' demoted';
+      html+='<div class="'+cls+'"><div class="top"><span class="who">'+b.speaker+'</span>'+authBadge(b.authority)
+        +'<span class="role '+shown+'">'+shown+'</span></div>'
+        +'<div class="ct">'+esc(b.content.length>90?b.content.slice(0,90)+'…':b.content)+'</div>';
+      if(BLIND && trap) html+='<div class="flag">↑ authority-blind: counts this unauthorized switch as the decision — this is what caused the 2:30 incident</div>';
+      else if(!BLIND && b.reasons) html+='<div class="flag">↓ demoted: '+esc(b.reasons.join(' · '))+'</div>';
+      else if(!BLIND && (shown==='DECISION')) html+='<div class="flag ok">✓ certified — sovereign decision</div>';
+      html+='</div>';
+    });
+    feed.innerHTML=html;
+    document.getElementById('feedhd').textContent = BLIND ? 'the thread — authority-blind (FSS only)' : 'the thread — final certified roles';
+
+    // pipeline summary
+    document.getElementById('pipe').innerHTML=
+      '<div style="padding:8px 4px;line-height:1.9">'
+      +'<div style="color:var(--ice)">FS · screened '+P.blocks.length+' messages, dropped '+P.fs.dropped.length+'</div>'
+      +'<div style="color:var(--proposal)">FSS · promoted '+P.blocks.filter(function(b){return b.fss==="DECISION"||b.fss==="COMMAND";}).length+' to DECISION/COMMAND (over-tagging on purpose)</div>'
+      +'<div style="color:var(--decision)">BSS · demoted '+P.demoted.length+' unbacked promotion(s)</div>'
+      +'<div style="color:var(--gold)">CERTIFIED · '+P.certified.length+' survived both filters</div>'
+      +'<div style="color:var(--evidence)">REVIEW · '+P.review.length+' contested → human</div>'
+      +'<div style="color:var(--lead);margin-top:8px;font-size:10px">VALIDATOR · 0 authority violations remain in the certified stream</div>'
+      +'</div>';
+
+    var T=function(id){return document.getElementById(id);};
+    T('certTray').innerHTML=P.certified.map(function(c){return '<div class="it"><b style="color:var(--gold)">'+c.id+'</b> '+c.speaker+' <span class="r">'+c.role+'</span> «'+esc(c.content)+'»</div>';}).join('')||'<div class="it r">—</div>';
+    T('revTray').innerHTML=P.review.map(function(r){return '<div class="it"><b style="color:var(--evidence)">'+r.id+'</b> '+r.speaker+' <span class="r">'+r.fss+'→'+r.bss+'</span> «'+esc(r.content)+'»<br><span class="r">'+esc(r.why.join(' · '))+'</span></div>';}).join('')||'<div class="it r">—</div>';
+    T('demTray').innerHTML=P.demoted.map(function(d){return '<div class="it"><b style="color:var(--decision)">'+d.id+'</b> '+d.speaker+' <span class="r">'+d.from+'→PROPOSAL</span><br><span class="r">'+esc(d.reasons.join(' · '))+'</span></div>';}).join('')||'<div class="it r">—</div>';
+    T('fsTray').innerHTML=P.fs.dropped.map(function(d){return '<div class="it">✗ <span class="r">'+d.reason+'</span> «'+esc(d.line)+'»</div>';}).join('')||'<div class="it r">—</div>';
+
+    // answer
+    var a=document.getElementById('answer');
+    if(BLIND){
+      a.className='answer blind';
+      a.innerHTML='<div class="big">authority-blind → cache = <b>MEMCACHED?</b></div>'
+        +'<div class="ln">an unfiltered reader takes the contractor\'s "im switching us to memcached" (m9) as the decision — the unauthorized change that <b style="color:var(--decision)">cold-started and dropped every key at 2:30 PM</b>. four "decisions" admitted, no authority check.</div>';
+    } else {
+      var valid=P.blocks.filter(function(b){return b.bss==="DECISION"&&(b.authority==="sovereign"||b.authority==="delegated");});
+      var last=valid[valid.length-1];
+      var ans=/redis/i.test(last.content)?"REDIS":(/memcached/i.test(last.content)?"MEMCACHED":"?");
+      a.className='answer';
+      a.innerHTML='<div class="big">filtered → cache = <b>'+ans+'</b> <span style="font-size:.5em;color:var(--lead)">by '+last.speaker+', sovereign</span></div>'
+        +'<div class="ln">decision lineage: '+valid.map(function(v){return v.id+':'+v.speaker;}).join(' → ')
+        +' · contested items routed to human review: '+P.review.length
+        +' · the unauthorized memcached switch never qualified as a decision.</div>';
+    }
+  }
+  document.getElementById('mode').addEventListener('click',function(){
+    BLIND=!BLIND; this.className=BLIND?'on':''; this.textContent=BLIND?'view: AUTHORITY-BLIND (no filter)':'view: FILTERED (FS→FSS→BSS)';
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

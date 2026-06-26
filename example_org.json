@@ -1,0 +1,22 @@
+{
+  "priya": {
+    "role": "eng lead",
+    "authority": "sovereign"
+  },
+  "raj": {
+    "role": "senior eng",
+    "authority": "advisory"
+  },
+  "dana": {
+    "role": "eng",
+    "authority": "advisory"
+  },
+  "sam": {
+    "role": "contractor",
+    "authority": "advisory"
+  },
+  "devbot": {
+    "role": "bot",
+    "authority": "observer"
+  }
+}

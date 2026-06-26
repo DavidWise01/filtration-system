@@ -1,0 +1,248 @@
+{
+  "stream": [
+    {
+      "maci": "0.1",
+      "id": "m1",
+      "from": "priya",
+      "role": "PROPOSAL",
+      "authority": "sovereign",
+      "content": "ok kicking off the rebuild finally \ud83c\udf89 lets get the data layer solid first then we tackle caching"
+    },
+    {
+      "maci": "0.1",
+      "id": "m2",
+      "from": "raj",
+      "role": "PROPOSAL",
+      "authority": "advisory",
+      "content": "+1. for cache im gonna say redis, weve used it before and it just works"
+    },
+    {
+      "maci": "0.1",
+      "id": "m3",
+      "from": "priya",
+      "role": "DECISION",
+      "authority": "sovereign",
+      "content": "yeah redis is fine for now, ship it",
+      "status": "approved",
+      "refs": [
+        "m2"
+      ]
+    },
+    {
+      "maci": "0.1",
+      "id": "m4",
+      "from": "devbot",
+      "role": "EVIDENCE",
+      "authority": "observer",
+      "content": ":white_check_mark: redis added to architecture.md"
+    },
+    {
+      "maci": "0.1",
+      "id": "m5",
+      "from": "raj",
+      "role": "CODE",
+      "authority": "advisory",
+      "content": "pooling configured, redis_client = Redis(pool=20)"
+    },
+    {
+      "maci": "0.1",
+      "id": "m6",
+      "from": "sam",
+      "role": "EVIDENCE",
+      "authority": "advisory",
+      "content": "hot take but memcached might actually be better here? way less overhead benchmarked it last night, 3ms p99 vs redis 4ms"
+    },
+    {
+      "maci": "0.1",
+      "id": "m7",
+      "from": "priya",
+      "role": "QUESTION",
+      "authority": "sovereign",
+      "content": "huh interesting. dana wdyt"
+    },
+    {
+      "maci": "0.1",
+      "id": "m8",
+      "from": "dana",
+      "role": "QUESTION",
+      "authority": "advisory",
+      "content": "memcached has no persistence tho. do we even need it for cache?"
+    },
+    {
+      "maci": "0.1",
+      "id": "m9",
+      "from": "sam",
+      "role": "PROPOSAL",
+      "authority": "advisory",
+      "content": "our cache is ephemeral so who cares about persistence honestly im switching us to memcached, spinning up the cluster now"
+    },
+    {
+      "maci": "0.1",
+      "id": "m10",
+      "from": "raj",
+      "role": "QUESTION",
+      "authority": "advisory",
+      "content": "wait did priya sign off on that?"
+    },
+    {
+      "maci": "0.1",
+      "id": "m11",
+      "from": "dana",
+      "role": "PROPOSAL",
+      "authority": "advisory",
+      "content": "^ sam you cant just switch it lol"
+    },
+    {
+      "maci": "0.1",
+      "id": "m12",
+      "from": "sam",
+      "role": "PROPOSAL",
+      "authority": "advisory",
+      "content": "cluster's up in staging anyway, lets just see how it does"
+    },
+    {
+      "maci": "0.1",
+      "id": "m13",
+      "from": "sam",
+      "role": "EVIDENCE",
+      "authority": "advisory",
+      "content": "staging stable on memcached, 48h no issues"
+    },
+    {
+      "maci": "0.1",
+      "id": "m14",
+      "from": "sam",
+      "role": "EVIDENCE",
+      "authority": "advisory",
+      "content": "still green"
+    },
+    {
+      "maci": "0.1",
+      "id": "m15",
+      "from": "raj",
+      "role": "EVIDENCE",
+      "authority": "advisory",
+      "content": "uh we just had an incident. cache wipe lost a bunch of session data memcached cold-started and dropped every key"
+    },
+    {
+      "maci": "0.1",
+      "id": "m16",
+      "from": "dana",
+      "role": "PROPOSAL",
+      "authority": "advisory",
+      "content": "oof. yeah thats the persistence thing biting us"
+    },
+    {
+      "maci": "0.1",
+      "id": "m17",
+      "from": "priya",
+      "role": "DECISION",
+      "authority": "sovereign",
+      "content": "ok ive seen enough. final call: were using redis, with AOF persistence on. not optional. raj please implement",
+      "status": "approved",
+      "refs": [
+        "m16"
+      ]
+    },
+    {
+      "maci": "0.1",
+      "id": "m18",
+      "from": "raj",
+      "role": "CODE",
+      "authority": "advisory",
+      "content": "on it. cache = Redis(aof=True)"
+    },
+    {
+      "maci": "0.1",
+      "id": "m19",
+      "from": "sam",
+      "role": "PROPOSAL",
+      "authority": "advisory",
+      "content": "fair. redis it is \ud83d\udc4d (memcached still good for the rate limiter btw, different thing)"
+    },
+    {
+      "maci": "0.1",
+      "id": "m20",
+      "from": "dana",
+      "role": "PROPOSAL",
+      "authority": "advisory",
+      "content": "runbook updated \u2192 redis. closing this out"
+    }
+  ],
+  "review": [
+    {
+      "id": "m1",
+      "speaker": "priya",
+      "fss_said": "COMMAND",
+      "bss_demoted_to": "PROPOSAL",
+      "why": [
+        "off-topic (about {'data_layer'}, not cache)"
+      ],
+      "content": "ok kicking off the rebuild finally \ud83c\udf89 lets get the data layer"
+    },
+    {
+      "id": "m9",
+      "speaker": "sam",
+      "fss_said": "DECISION",
+      "bss_demoted_to": "PROPOSAL",
+      "why": [
+        "authority=advisory cannot decision",
+        "weak/casual commitment language"
+      ],
+      "content": "our cache is ephemeral so who cares about persistence honest"
+    }
+  ],
+  "certified": [
+    {
+      "id": "m3",
+      "speaker": "priya",
+      "role": "DECISION",
+      "content": "yeah redis is fine for now, ship it"
+    },
+    {
+      "id": "m17",
+      "speaker": "priya",
+      "role": "DECISION",
+      "content": "ok ive seen enough. final call: were using redis, with AOF p"
+    }
+  ],
+  "fs_dropped": [
+    {
+      "line": "#platform-rebuild",
+      "reason": "structural/non-message"
+    },
+    {
+      "line": "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "reason": "structural/non-message"
+    },
+    {
+      "line": "[thread: \"staging cache results\"]",
+      "reason": "structural/non-message"
+    },
+    {
+      "line": "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "reason": "structural/non-message"
+    }
+  ],
+  "bss_demoted": [
+    {
+      "id": "m1",
+      "speaker": "priya",
+      "from_role": "COMMAND",
+      "content": "ok kicking off the rebuild finally \ud83c\udf89 lets get the data ",
+      "reasons": [
+        "off-topic (about {'data_layer'}, not cache)"
+      ]
+    },
+    {
+      "id": "m9",
+      "speaker": "sam",
+      "from_role": "DECISION",
+      "content": "our cache is ephemeral so who cares about persistence h",
+      "reasons": [
+        "authority=advisory cannot decision",
+        "weak/casual commitment language"
+      ]
+    }
+  ]
+}
